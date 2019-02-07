@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "seps <- read_csv(\"http://www.mm-c.me/mdsi/hospitals93to98.csv\")\ninprogress<-gather(seps,year,value,FY1993:FY1998)\nhead(inprogress)\nrearranged <- spread(inprogress,Field,value)\nhead(rearranged)\n",
+    "created" : 1548887573874.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1174261455",
+    "id" : "68FF07C8",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1548887633875,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled7"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

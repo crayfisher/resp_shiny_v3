@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "load(file = \"data/params/params1.rdata\") # this contains definition of zones and times available\n\nlibrary(shiny)\nlibrary(tidyverse)\nlibrary(raster)\nlibrary(leaflet)\nlibrary(RColorBrewer)\nlibrary(sf)\nlibrary(rgdal)\nlibrary(plotly)\nlibrary(DT)\nlibrary(lubridate)\n\n\nsource(\"proc.R\")\nfolder <- \"data/raster/\"\nwgs84 <- \"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs\"\nnztm <- \"+proj=tmerc +lat_0=0.0 +lon_0=173.0 +k=0.9996 +x_0=1600000.0 +y_0=10000000.0 +datum=WGS84 +units=m\"\n\npal <- rev(rainbow(5,start = 0,end = .5))\nat <-seq(0,100,10)\ncb <- colorBin(pal,bins=at,domain = at)\nperc_s <- c(\"Q50\",\"Q10\",\"Q90\")\nwells_dummy <-data.frame(x = c(0,0),\n                         y = c(0,0),\n                         Q = c(0,0),\n                         L = c(1,2))  \n",
+    "created" : 1549510296163.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3381421613",
+    "id" : "DFACBBC8",
+    "lastKnownWriteTime" : 1549510336,
+    "last_content_update" : 1549510336163,
+    "path" : "C:/PAWEL/R/resp_shiny_v3/global.R",
+    "project_path" : "global.R",
+    "properties" : {
+        "tempName" : "Untitled9"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

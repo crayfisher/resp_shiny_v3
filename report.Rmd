@@ -1,0 +1,66 @@
+---
+title: "report"
+author: "Pawel"
+date: "30 January 2019"
+output: pdf_document
+#output: pdf_document
+always_allow_html: yes
+params:
+  chart_line: NA
+  chart_bar: NA
+  map: NA
+  wells: NA
+  raster: NA
+  labels: NA
+---
+
+
+
+This is my report
+
+```{r echo = FALSE}
+#params$map
+params$chart_line
+params$chart_bar
+#params$wells
+#params$raster
+#params$labels
+```
+
+```{r echo = FALSE}
+library(leaflet)
+
+wgs84 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+nztm <- "+proj=tmerc +lat_0=0.0 +lon_0=173.0 +k=0.9996 +x_0=1600000.0 +y_0=10000000.0 +datum=WGS84 +units=m"
+pal <- rev(rainbow(5,start = 0,end = .5))
+at <-seq(0,100,10)
+cb <- colorBin(pal,bins=at,domain = at)
+perc_s <- c("Q50","Q10","Q90")
+
+  leaflet() %>% 
+     addTiles((urlTemplate = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png") ) %>%
+     fitBounds(176.4991,-39.7270,177.0382,-39.4487) %>% 
+     addCircleMarkers(data = params$wells,  #add marker
+                         radius = 4,
+                         fillColor = "red",
+                         stroke = F,
+                         fillOpacity = 1,
+                         group = "markers") %>%
+     addPolygons(group = "poly",
+                    data=params$raster,
+                    opacity = 1,
+                    fillOpacity = 0.7,
+                    stroke = F,
+                    fillColor = ~cb(SD*100),
+                    label= params$labels,
+                    labelOptions = labelOptions(
+                      style = list("font-weight" = "normal", padding = "3px 8px"),
+                      textsize = "15px",
+                      direction = "auto",
+                      clickable = F)) %>% 
+                  addLegend(layerId = "legend",
+                  title = "Stream Depletion %",
+                  pal = cb,
+                  values= at) 
+
+```

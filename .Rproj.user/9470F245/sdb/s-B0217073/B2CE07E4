@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"report\"\nauthor: \"Pawel\"\ndate: \"30 January 2019\"\noutput: pdf_document\n#output: pdf_document\nalways_allow_html: yes\nparams:\n  chart_line: NA\n  chart_bar: NA\n  map: NA\n  wells: NA\n  raster: NA\n  labels: NA\n---\n\n\n\nThis is my report\n\n```{r echo = FALSE}\n#params$map\nparams$chart_line\nparams$chart_bar\n#params$wells\n#params$raster\n#params$labels\n```\n\n```{r echo = FALSE}\nlibrary(leaflet)\n\nwgs84 <- \"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs\"\nnztm <- \"+proj=tmerc +lat_0=0.0 +lon_0=173.0 +k=0.9996 +x_0=1600000.0 +y_0=10000000.0 +datum=WGS84 +units=m\"\npal <- rev(rainbow(5,start = 0,end = .5))\nat <-seq(0,100,10)\ncb <- colorBin(pal,bins=at,domain = at)\nperc_s <- c(\"Q50\",\"Q10\",\"Q90\")\n\n  leaflet() %>% \n     addTiles((urlTemplate = \"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png\") ) %>%\n     fitBounds(176.4991,-39.7270,177.0382,-39.4487) %>% \n     addCircleMarkers(data = params$wells,  #add marker\n                         radius = 4,\n                         fillColor = \"red\",\n                         stroke = F,\n                         fillOpacity = 1,\n                         group = \"markers\") %>%\n     addPolygons(group = \"poly\",\n                    data=params$raster,\n                    opacity = 1,\n                    fillOpacity = 0.7,\n                    stroke = F,\n                    fillColor = ~cb(SD*100),\n                    label= params$labels,\n                    labelOptions = labelOptions(\n                      style = list(\"font-weight\" = \"normal\", padding = \"3px 8px\"),\n                      textsize = \"15px\",\n                      direction = \"auto\",\n                      clickable = F)) %>% \n                  addLegend(layerId = \"legend\",\n                  title = \"Stream Depletion %\",\n                  pal = cb,\n                  values= at) \n\n```",
+    "created" : 1548793631351.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3062065193",
+    "id" : "B2CE07E4",
+    "lastKnownWriteTime" : 1549488648,
+    "last_content_update" : 1549488648763,
+    "path" : "C:/PAWEL/R/resp_shiny_v3/report.Rmd",
+    "project_path" : "report.Rmd",
+    "properties" : {
+        "marks" : "<:28,5\n>:28,5"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

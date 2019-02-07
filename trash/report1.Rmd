@@ -1,0 +1,22 @@
+---
+title: "report"
+author: "Pawel"
+date: "30 January 2019"
+output: html_document
+params:
+  df: df
+---
+
+
+
+This is my report
+
+```{r echo = FALSE}
+chart <- ggplot(data = df,aes(x=time,y=Q50))+
+      geom_ribbon(aes(ymin=Q10, ymax=Q90),fill = "gray70")+
+      geom_line(col = "red")+
+      theme(legend.position = "none",axis.text.x = element_text(angle = 90, hjust = 1))+
+      ggtitle("Effect vs time (for selected stream) ")+
+      ylab("Effect L/s")+
+      xlab("Time days")
+```
