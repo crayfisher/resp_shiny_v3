@@ -307,7 +307,7 @@ server <- function(input, output) {
         if(z==1 & p==1) {
           res1 <- res
         } else {
-          res1 <- bind_rows(res1,res)
+          res1 <- bind_rows(res1,res) 
         }
       }
     }
@@ -562,7 +562,7 @@ server <- function(input, output) {
     }
   )
   
-  output$downloadData_times <- downloadHandler(
+  output$downloadData_time <- downloadHandler(
     filename = "SD_per_times.csv",
     content = function(file) {
       write.csv(tot_effect_times_df_print() , file = file, row.names = FALSE)
