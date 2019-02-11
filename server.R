@@ -300,7 +300,7 @@ server <- function(input, output) {
       
       for (p in 1:3){
         perc_p <- perc_s[p] 
-        res <- tot_eff2(wells_list(),zone_z,time(),perc_p)%>% 
+        res <- data.frame(SD_tot =tot_eff2_sum(tot_eff2(wells_list(),zone_z,time(),perc_p)))%>% 
           mutate(zone = zone_z,
                  river = river_z,
                  perc = perc_p )
@@ -312,7 +312,7 @@ server <- function(input, output) {
       }
     }
     res1 <- res1 %>% 
-      select(-SD) %>% 
+      #select(-SD) %>% 
       spread(perc,SD_tot) %>% 
       mutate(river1 = str_wrap(river,width = 10))
     res1
@@ -320,7 +320,7 @@ server <- function(input, output) {
   
   tot_effect_zones_df_print <- reactive({
     df <- tot_effect_zones_df() %>% 
-      select(-x,-y,-Q,-L,zone) %>% 
+      select(- river1) %>% 
       mutate_at(vars(Q10,Q50,Q90),funs(round(.,2)))
   })
   
