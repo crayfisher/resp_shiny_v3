@@ -4,7 +4,10 @@ ui <- fluidPage( #column for inputs
   titlePanel("Stream depletion calculator"),
   fluidRow(
     column(2,
-           downloadButton('downloadReport'),
+           downloadButton('downloadReport',"Download pdf report"),
+           checkboxInput("include_wells",
+                         "Include wells in the report?",
+                         value = T),
            radioButtons(inputId = "pump_in_type",
                         label = "pumping input type",
                         choices = c("single point","upload csv","historical data"),
@@ -45,6 +48,7 @@ ui <- fluidPage( #column for inputs
            ),
            
            conditionalPanel("input.pump_in_type == 'upload csv'",
+                            downloadButton("downloadData_bore_template", "Download csv template"),
                             fileInput("file1", "Choose CSV File",
                                       accept = c(
                                         "text/csv",
@@ -72,26 +76,14 @@ ui <- fluidPage( #column for inputs
            
            fluidRow( #row for text results
              fixedRow(
+               h3("RESULTS"),
+               h4("for selected stream"),
+               h4("at selected time inteval" ),
+               h4("for selected pumping location, rate and duration"),
+               dataTableOutput("results_table")
                
                
-               column(7,
-                      h3(textOutput("tot_effect_out_label"))
-               ),
-               column(3,
-                      strong(h1(textOutput("tot_effect_out")))
-               )
-               
-               
-             ),
-             fixedRow(conditionalPanel("input.pump_in_type == 'single point'",
-                                       column(7,
-                                              h3(textOutput("SDZ_out_label"))
-                                       ),
-                                       column(3,
-                                              strong(h1(textOutput("SDZ_out")))#,
-                                              #strong(h1(textOutput("test1")))
-                                       )
-             ))
+             )
              
            ),
            fluidRow( #row for map

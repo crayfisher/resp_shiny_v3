@@ -119,6 +119,7 @@ server <- function(input, output) {
   
   
   
+  
   #convert wells to spatial and transform (for ploting locations)
   wells1 <- reactive({
     #####
@@ -202,6 +203,16 @@ server <- function(input, output) {
     time <- unlist(df)
     
   })
+  
+  time2 <- reactive({
+    time2 <- times %>% 
+      filter(id == time()) %>% 
+      select(comm_time) 
+    time2 <- unlist(time2)
+    time2 <- unname(time2)
+    time2
+  })
+  
   zone <- reactive({
     input$zone
     # zone <- input$zone
@@ -211,12 +222,24 @@ server <- function(input, output) {
     #   select(descr)
     # zone <- unlist(df)
   })
+  
+  
+  zone2 <- reactive({
+    zone2 <- rivers %>% 
+      filter(river == zone()) %>% 
+      select(descr) 
+    zone2 <- unlist(zone2)
+    zone2 <- unname(zone2)
+    zone2
+  })
+  
+  
   #layer <- input$Layer
   
   #generate 
   
   perc <- "Q50"
-  RF_poly1 <- reactive({
+  RF_poly0 <- reactive({
     #function to load raster
     RF_comb <- SDZ_imp(zone(),time(),perc)
     #output
@@ -236,13 +259,23 @@ server <- function(input, output) {
     else{
       RF <- RF_L2
     }
-    RF_poly <- rasterToPolygons(RF,na.rm=T) %>% 
+    crs(RF) <- "+proj=tmerc +lat_0=0.0 +lon_0=173.0 +k=0.9996 +x_0=1600000.0 +y_0=10000000.0 +datum=WGS84 +units=m"
+    names(RF) <- "SDR"
+    RF
+
+  })
+  
+  RF_poly1 <- reactive({
+    RF_poly <- rasterToPolygons(RF_poly0(),na.rm=T) %>% 
       st_as_sf() %>% 
       st_set_crs(value= 2193) %>% 
       st_transform(crs = 4326)
     names(RF_poly) <- c("SD","geometry")
     RF_poly
   })
+  
+  
+  
   labels1 <- reactive({
     labels <- as.character(paste("stream depletion",round(RF_poly1()$SD*100,2),"%",sep=" "))
     labels
@@ -414,10 +447,6 @@ server <- function(input, output) {
   })
   
   
-  
-  
-  
-  
   tot_effect_10 <- reactive({
     # df <- tot_eff_calc(input$zone,input$time,raster_pumping_comb()) %>% 
     #   select(tot_effect)
@@ -438,25 +467,35 @@ server <- function(input, output) {
     df
   })
   
+  tot_effect_all <- reactive({data.frame(`Stream Depletion` = c(tot_effect(),tot_effect_10(),tot_effect_90()),
+                               row.names = c("mean Q50","minimum Q10","maximum Q90"))})
+  SDR_all <- reactive({data.frame(`Stream Depletion Ratio` = SDZ_perc(),
+                        row.names = c("mean Q50","minimum Q10","maximum Q90"))})
   
+  results_df <- reactive({if(input$pump_in_type == "single point"){ 
+    results_df <- bind_cols(tot_effect_all(),SDR_all())
+    results_df
+  }else{
+    results_df <-  tot_effect_all()
+    results_df
+  }
+    row.names(results_df) <- c("most likely mean: (Q50)","minimum (Q10)","maximum (Q90)")
+    results_df
+    })
   
+  dt_col_names <- reactive({
+    if(input$pump_in_type == "single point"){ 
+      c("Stream Depletion (L/s)","Stream Depletion Ratio (%)")
+      }else{
+      c("Stream Depletion (L/s)")
+      }  
+    }) 
   
+  output$results_table <- DT::renderDataTable(datatable(results_df(),
+                                                        rownames = c("most likely mean: (Q50)","minimum (Q10)","maximum (Q90)"),
+                                                        colnames = dt_col_names()))
   
-  output$tot_effect_out <- renderText({
-    paste( tot_effect(),"(",tot_effect_10()," - ",tot_effect_90(),")","L/s")
-  })
-  
-  
-  output$SDZ_out <- renderText({
-    paste( SDZ_perc(),"%")
-  }) 
-  
-  output$tot_effect_out_label <- renderText({
-    "Total effect on selected stream from pumping for specified location, rate and duration:"
-  })
-  output$SDZ_out_label <- renderText({
-    "Stream depletion as % of pumping:"
-  }) 
+
   chart_bar1 <- reactive({
     chart <- tot_effect_zones_df() %>% 
       ggplot(aes(zone,Q50,fill = river))+
@@ -533,8 +572,20 @@ server <- function(input, output) {
                      chart_bar = chart_bar1(),
                      map = lf(),
                      wells = wells1(),
-                     raster = RF_poly1(),
-                     labels = labels1() )
+                     raster = RF_poly0(),
+                     labels = labels1(),
+                     zone = zone2(),
+                     time  = time2(),
+                     pumping_type = input$pump_in_type,
+                     abstr_type = input$abstr_type,
+                     period_type = input$period_type,
+                     date_range_hist = input$date_range_hist,
+                     results_df = results_df(),
+                     SD_per_bore = tot_effect_df_print(),
+                     SD_per_river = tot_effect_zones_df_print(),
+                     SD_per_times = tot_effect_times_df_print(),
+                     include_wells = input$include_wells
+                     )
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
@@ -547,6 +598,15 @@ server <- function(input, output) {
       )
     }
   )
+  
+  output$downloadData_bore_template <- downloadHandler(
+    
+      filename = "bore_template.csv",
+      content = function(file) {
+          file.copy("data/wells/wells.csv", file)
+    }
+  )
+  
   
   output$downloadData_bore <- downloadHandler(
     filename = "SD_per_bore.csv",
