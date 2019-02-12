@@ -5,6 +5,6 @@ account: hbrc-pawel
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 672624
-bundleId: 1862986
+bundleId: 1872566
 url: https://hbrc-pawel.shinyapps.io/resp_shiny_v3/
-when: 1549580948.82561
+when: 1550006159.97162

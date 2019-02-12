@@ -1,10 +1,6 @@
 ---
-#title: "report"
-#author: "Pawel"
-#date: "30 January 2019"
+title: "Stream Depletion Report"
 output: pdf_document
-#output: pdf_document
-#always_allow_html: yes
 params:
   chart_line: NA
   chart_bar: NA
@@ -29,10 +25,7 @@ params:
 library(lubridate)
 ```
 
-
-
-# Stream depletion report
- generated on: `r Sys.time()`  
+generated on: `r Sys.time()`  
   
 ## Input data:  
 **river:** `r params$zone`  
@@ -40,8 +33,10 @@ library(lubridate)
 **pumping input:** `r params$pumping_type`  
 **number of wells:** `r nrow(params$wells)`  
 **abstraction type:** `r if(params$pumping_type == "historical data") {  toString(params$abstr_type)}else{NA}`  
-**averaging period:** `r if(params$pumping_type == "historical data") {if(params$period_type == "dry summer 2012-2013"){"selected period: dry summer 2012-2013"}else if (params$period_type == "date range"){paste("selected period:", params$date_range_hist[1], "to", params$date_range_hist[2]) }}else{NA}`  
+**averaging period:** `r if(params$pumping_type == "historical data") {if(params$period_type == "dry summer 2012-2013"){"selected period: dry summer 2012-2013"}else if (params$period_type == "date range"){paste("selected period:", params$date_range_hist[1], "to", params$date_range_hist[2]) }}else{NA}` 
+
 # RESULTS:  
+
 for selected stream  
 at selected time inteval  
 for selected pumping location, rate and duration  
@@ -82,37 +77,48 @@ tm
 
 
 ```
-******
+
+\newpage
+
 # RESULTS per pumping bore  
+
 ```{r echo = F}
 if(params$include_wells == T){ kable(params$SD_per_bore)}else{"user selected not to include wells"}
 ```
-******
+
+\newpage
+
 # Chart of stream depletion vs time  
+
 depletion by selected puming  
 for selected stream  
+
 ```{r echo = FALSE}
-#params$map
 params$chart_line
 ```
-data for depletion vs time
-```{r echo = FALSE}
-#params$map
-kable(params$SD_per_river)
-```
 
+data for depletion vs time  
 
-
-******
-# Chart of stream depletion per zone  
-depletion by selected puming  
-for selected time interval  
-```{r echo = FALSE}
-params$chart_bar
-```
-data for depletion vs zone
 ```{r echo = FALSE}
 kable(params$SD_per_times)
 ```
+
+
+
+\newpage
+
+# Chart of stream depletion per zone  
+
+depletion by selected puming  
+for selected time interval  
+
+```{r echo = FALSE}
+params$chart_bar
+```
+data for depletion vs zone  
+
+```{r echo = FALSE}
+kable(params$SD_per_river)
+``` 
 
 
