@@ -1,7 +1,7 @@
 
 
 server <- function(input, output) {
-  
+ 
   #leaflet map is create here, because it is used in both the app and in the report
   lf <- reactive({
     leaflet() %>% 
@@ -11,7 +11,7 @@ server <- function(input, output) {
       addMapPane(name = "wells", zIndex = 420)
   })
   
-  
+
   output$map <- renderLeaflet({
 
     lf()

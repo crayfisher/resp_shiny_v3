@@ -89,6 +89,7 @@ ui <- fluidPage( #column for inputs
            ),
            fluidRow( #row for map
              tabsetPanel(type = "tabs",
+                         selected = "Map",
                          tabPanel("Info",
                                   h1("Stream Depletion Calculator"),
                                   h2("for Heretaunga Aquifer"),
