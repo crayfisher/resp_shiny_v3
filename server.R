@@ -80,14 +80,16 @@ server <- function(input, output) {
     if (well_csv_ready() == T & input$pump_in_type == 'upload csv') {
       #impot csv
       #wells <- read_csv("data/wells.csv")
-      wells <-  wells_csv()
-      colnames(wells) <- c("x","y","Q","L")
-      wells <- wells[,1:4] 
+      wells <-  wells_csv() %>% 
+        mutate(type = NA) %>% 
+        select(x,y,Q,L,bore,type)
+      
     } else if (input$pump_in_type == "historical data" &  length(input$abstr_type >0) ){
       load("data/wells/wells_hist.rdata")
       wells <- wells_hist %>% 
         filter(type %in%  input$abstr_type) %>% 
-        mutate(Q=-Q)
+        mutate(Q=-Q) %>% 
+        select(x,y,Q,L,bore,type,date)
       
       if (input$period_type == "dry summer 2012-2013"){
         dates_range <- parse_date_time (c("1/11/2012","1/03/2013"),"dmy")
@@ -99,7 +101,7 @@ server <- function(input, output) {
       wells <- wells %>% 
         filter(between(date,dates_range[1],dates_range[2]))  %>%  
         filter(type %in%  input$abstr_type) %>%
-        group_by(x,y,L) %>%
+        group_by(x,y,L,bore,type) %>%
         summarise(Q = mean(Q))
       
       
@@ -109,13 +111,17 @@ server <- function(input, output) {
       wells <- data.frame(x = input$E,
                           y= input$N,
                           Q= input$Q,
-                          L=1) 
+                          L=1,
+                          bore = NA,
+                          type= NA) 
     }
     
     wells
   })
   
-  
+  wells_total <- reactive({
+    round(sum(wells()$Q),digits = 1)
+  })
   
   
   
@@ -127,7 +133,7 @@ server <- function(input, output) {
     #convert wells to lat long as set as spatial object for mapping in leaflet
     wells1 <- st_as_sf(wells(),coords = c("x", "y"),crs = 2193)
     wells1 <- st_transform(wells1,4326)
-    wells1 <- as(wells1, 'Spatial')
+    #wells1 <- as(wells1, 'Spatial')
     wells1
   })
   
@@ -175,6 +181,10 @@ server <- function(input, output) {
   #    raster_pumping_comb <- pump2rast(wells())
   #  })
   
+  vals <- c("PWS","IND","irr")
+  pal <- colorFactor(
+    palette = 'Spectral',
+    domain = vals)
   
   #generate a map with selected wells
   map_point <- observe({
@@ -184,14 +194,20 @@ server <- function(input, output) {
       clearGroup(group = "markers") %>% 
       #removeMarker() %>% #clear old marker
       addCircleMarkers(data = wells1(),  #add marker
-                       radius = ~Q/10,#4
-                       fillColor = "blue",
-                       stroke = F,
+                       radius = ~Q/5,#4
+                       fillColor = ~pal(type),
+                       stroke = T,
+                       color = "black",
+                       weight = 1,
                        fillOpacity = .7,
                        group = "markers",
                        options = leafletOptions(pane = "wells")
                        
-      )
+      )%>% 
+      addLegend(layerId = "legend2",
+                title = "abstraction type",
+                pal = pal,
+                values= vals ) 
   })
   
   time <- reactive({
@@ -212,6 +228,7 @@ server <- function(input, output) {
     time2 <- unname(time2)
     time2
   })
+  output$time2 <- renderText(time2())
   
   zone <- reactive({
     input$zone
@@ -232,6 +249,8 @@ server <- function(input, output) {
     zone2 <- unname(zone2)
     zone2
   })
+  
+  output$zone2 <- renderText(zone2())
   
   
   #layer <- input$Layer
@@ -430,7 +449,7 @@ server <- function(input, output) {
              SD = SD_tot,
              quantile = perc) %>% 
       mutate_at(vars(SD,SDR),funs(round(.,2))) %>% 
-      select(x,y,L,Q,SDR,SD,quantile)
+      select(x,y,L,bore,type,Q,SDR,SD,quantile)
     
   })
   
@@ -513,7 +532,7 @@ server <- function(input, output) {
   
   
   
-  
+  output$total_Q <- (renderText(paste("Total pumping rate:",wells_total(),"L/s")))
   
   
   
@@ -584,7 +603,8 @@ server <- function(input, output) {
                      SD_per_bore = tot_effect_df_print(),
                      SD_per_river = tot_effect_zones_df_print(),
                      SD_per_times = tot_effect_times_df_print(),
-                     include_wells = input$include_wells
+                     include_wells = input$include_wells,
+                     total_pump = wells_total()
                      )
       
       # Knit the document, passing in the `params` list, and eval it in a

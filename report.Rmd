@@ -19,6 +19,7 @@ params:
   SD_per_river: NA
   SD_per_times: NA
   include_wells: NA
+  total_pump: NA
 ---
 
 ```{r echo = F}
@@ -32,6 +33,7 @@ generated on: `r Sys.time()`
 **time (days):** `r params$time`  
 **pumping input:** `r params$pumping_type`  
 **number of wells:** `r nrow(params$wells)`  
+**total pumping rate L/s** `r params$total_pump`  
 **abstraction type:** `r if(params$pumping_type == "historical data") {  toString(params$abstr_type)}else{NA}`  
 **averaging period:** `r if(params$pumping_type == "historical data") {if(params$period_type == "dry summer 2012-2013"){"selected period: dry summer 2012-2013"}else if (params$period_type == "date range"){paste("selected period:", params$date_range_hist[1], "to", params$date_range_hist[2]) }}else{NA}` 
 
@@ -47,6 +49,13 @@ Stream Depletion Ratio as % of pumping
 library(knitr)
 kable(params$results_df)
 ```
+
+\newpage
+
+# Stream Depletion Ratios and location of pumping  
+
+Stream depletion ratio for selected river and time interval  
+pumping locations shown by type and volume  
 
 ```{r echo = F}
 library(tmap)
@@ -69,7 +78,8 @@ tm <- qtm(osm_map)+
               title = "stream depletion ratio")+
   tm_shape(params$wells)+
   tm_dots(size = "Q",
-          col = "blue")+
+          col = "type",
+          palette = "Spectral")+
   tm_compass(position = c("left","bottom"))+
   tm_scale_bar(position = c("left","bottom"))+
   tm_layout(legend.outside = T)
