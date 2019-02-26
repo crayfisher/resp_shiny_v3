@@ -1,6 +1,6 @@
 
 
-server <- function(input, output) {
+server <- function(input, output,session) {
  
   #leaflet map is create here, because it is used in both the app and in the report
   lf <- reactive({
@@ -649,5 +649,11 @@ server <- function(input, output) {
     }
   )
   
+  #this is for captchta email
+  result <- callModule(recaptcha, "test", secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe")
   
+  output$humansOnly <- renderUI({
+    req(result()$success)
+    tags$p("prakowski@gmail.com")
+  })
 }

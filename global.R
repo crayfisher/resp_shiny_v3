@@ -10,8 +10,8 @@ library(rgdal)
 library(plotly)
 library(DT)
 library(lubridate)
-
-
+library(shinyCAPTCHA)
+#devtools::install_github("CannaData/shinyCAPTCHA", force = TRUE)
 
 source("proc.R")
 folder <- "data/raster/"
