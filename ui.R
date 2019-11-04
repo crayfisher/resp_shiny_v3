@@ -1,12 +1,30 @@
-
+dput(df)
 
 ui <- fluidPage( #column for inputs
-  titlePanel("Stream depletion calculator"),
+  fluidRow(
+    tags$img(style = "display: block; margin-left: auto; margin-right: auto;
+             ", #; float: right
+             height = 250,
+             width  = 350, 
+             src    = "HBRC_RGB_screen.png"#, 
+             #align = "right"
+             ),
+    tags$h1(
+      tags$strong("Stream Depletion Calculator"), 
+            style = "color:DarkBlue;font-family:Tahoma;font-size:300%;text-align:center;")
+    #titlePanel(
+     ),
+  tags$hr(),
   fluidRow(
     column(2,
-           downloadButton('downloadReport',"Download pdf report"),
+           downloadButton("downloadpdfreport_ae", 
+                          "Download pdf report"),
            checkboxInput("include_wells",
                          "Include wells in the report?",
+                         value = T),
+           #added 
+           checkboxInput("include_effect_streams",
+                         "Include effects for different streams?",
                          value = T),
            radioButtons(inputId = "pump_in_type",
                         label = "pumping input type",
@@ -20,7 +38,7 @@ ui <- fluidPage( #column for inputs
                                                               "Industrial"= "IND"),
                                                selected = "PWS"),
                             radioButtons(inputId = "period_type",
-                                         label = "select averaging period",
+                                         label = "Select averaging period",
                                          choices = c("dry summer 2012-2013","date range"),
                                          selected = "dry summer 2012-2013"),
                             conditionalPanel("input.period_type == 'date range'",
@@ -58,32 +76,38 @@ ui <- fluidPage( #column for inputs
                             
            ),
            radioButtons(inputId = "zone",
-                        label = "select stream",
+                        label = "Select stream",
                         choiceNames = rivers$descr,
                         choiceValues = rivers$river,
                         selected = "ALLZN"
            ),
            radioButtons(inputId = "time",
-                        label = "select time (days)",
+                        label = "Select time (days)",
                         choices = c("7","30","60","90","150"),
                         selected = "150"),
            radioButtons(inputId = "Layer",
-                        label = "select Layer",
+                        label = "Select Layer",
                         choices = c("1","2"),
                         selected = "1")
     ),
+    #column(1),
     column(10, #column for results
            
            fluidRow( #row for text results
              fixedRow(
-               h3("RESULTS"),
+               h3("Results"),
                h4("for selected stream:",strong(textOutput("zone2"))),
                h4("at selected time inteval",strong(textOutput("time2"))),
                h4("for selected pumping location, rate and duration"),
                h4(strong(textOutput("total_Q"))),
-               dataTableOutput("results_table")
-               
-               
+               tags$br(),
+               tags$br(),
+               tags$br(),
+               withSpinner(dataTableOutput("results_table")),
+               tags$br(),
+               tags$br(),
+               tags$br(),
+               tags$br()
              )
              
            ),
@@ -118,24 +142,60 @@ ui <- fluidPage( #column for inputs
                                   a(href ="https://www.hbrc.govt.nz/assets/Document-Library/Publications-Database/4997-Heretaunga-Model-Groundwater-Development-Report.pdf","full report"),
                                   p("The methodology behind the calculator is based on",em("response function method")),
                                   p("Full documentation is provided in a report:", em("Rakowski P. (2019) Heretaunga Aquifer Stream Depletion Assessment Stochastic Stream Depletion Distribution, Zone Delineation and Response Function Methodology. HBRC."),"(in prep)"),
-                                  p("this application was developed by Pawel Rakowski"),
-                                  p("click below to reveal email"),
-                                  recaptchaUI("test", sitekey = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"),
-                                  uiOutput("humansOnly")
-                                  
-                         ),
+                                  p("this application was developed by Pawel Rakowski")#,
+                                  #p("click below to reveal email"),
+                                  #recaptchaUI("test", sitekey = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"),
+                                  #uiOutput("humansOnly")
+                                   ),
                          tabPanel("Map", 
-                                  leafletOutput("map"),
+                                  tags$br(),
+                                  tags$br(),
+                                  withSpinner(leafletOutput("map")),
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  withSpinner(dataTableOutput("wells_tab")),
+                                  tags$br(),
+                                  tags$br(),
+                                  #withSpinner(dataTableOutput("selected_zone_tab")),
+                                  tags$br(),
+                                  tags$br(),
                                   downloadButton("downloadData_bore", "Download Data"),
-                                  dataTableOutput("wells_tab")),
-                         tabPanel("bar chart", 
-                                  plotlyOutput("bar_chart"),
-                                  downloadButton("downloadData_river", "Download Data"),
-                                  dataTableOutput("zones_tab")),
-                         tabPanel("line chart", 
-                                  plotlyOutput("line_chart"),
-                                  downloadButton("downloadData_time", "Download Data"),
-                                  dataTableOutput("times_tab")
+                                  tags$br(),
+                                  tags$br(),
+                                  p("Download effect for different streams"),
+                                  downloadButton("downloadData_effectzone", "Download Data")),
+                         
+                         tabPanel("Bar chart", 
+                                  tags$br(),
+                                  tags$br(),
+                                  fluidRow(
+                                    column(width =3),
+                                    column(width = 6,
+                                                  withSpinner(plotOutput("bar_chart", width = "75%",  height = 550))
+                                    ), 
+                                    column(width = 2)
+                                  ), 
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  withSpinner(dataTableOutput("zones_tab")),
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  downloadButton("downloadData_river", "Download Data")),
+                         tabPanel("Line chart", 
+                                  tags$br(),
+                                  tags$br(),
+                                  withSpinner(plotOutput("line_chart", height = 450)),
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  tags$br(),
+                                  withSpinner(dataTableOutput("times_tab")),
+                                  tags$br(),
+                                  downloadButton("downloadData_time", "Download Data")
                          )
                          
                          
