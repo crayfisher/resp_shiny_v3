@@ -4,9 +4,9 @@ output: pdf_document
 params:
   chart_line: NA
   chart_bar: NA
-  map: NA
+  #map: NA
   wells: NA
-  raster: NA
+  #raster: NA
   labels: NA
   zone: NA
   time: NA
@@ -18,15 +18,19 @@ params:
   SD_per_bore: NA
   SD_per_river: NA
   SD_per_times: NA
+  SD_per_streams: NA
+  include_effect_streams: NA
   include_wells: NA
   total_pump: NA
 ---
+
+\newpage
 
 ```{r echo = F}
 library(lubridate)
 ```
 
-generated on: `r Sys.time()`  
+Report generated on: `r Sys.time()`  
   
 ## Input data:  
 **river:** `r params$zone`  
@@ -37,9 +41,13 @@ generated on: `r Sys.time()`
 **abstraction type:** `r if(params$pumping_type == "historical data") {  toString(params$abstr_type)}else{NA}`  
 **averaging period:** `r if(params$pumping_type == "historical data") {if(params$period_type == "dry summer 2012-2013"){"selected period: dry summer 2012-2013"}else if (params$period_type == "date range"){paste("selected period:", params$date_range_hist[1], "to", params$date_range_hist[2]) }}else{NA}` 
 
-# RESULTS:  
 
-for selected stream  
+\newpage
+
+
+# Results:  
+
+For selected stream  
 at selected time inteval  
 for selected pumping location, rate and duration  
   
@@ -50,64 +58,52 @@ library(knitr)
 kable(params$results_df)
 ```
 
-\newpage
-
-# Stream Depletion Ratios and location of pumping  
-
-Stream depletion ratio for selected river and time interval  
-pumping locations shown by type and volume  
-
-```{r echo = F}
-library(tmap)
-library(tmaptools)
-library(OpenStreetMap)
-#library(raster)
-#library(sf)
-
-#RF_poly1()
-#wells1()
-osm_map <- read_osm(params$raster,type ="stamen-terrain")
-
-tm <- qtm(osm_map)+
-  tm_shape(params$raster)+
-  tm_raster(col = "SDR",
-              breaks = seq(0,1,0.1),
-              style = "fixed",
-              palette = "-Spectral",
-              alpha = 0.5,
-              title = "stream depletion ratio")+
-  tm_shape(params$wells)+
-  tm_dots(size = "Q",
-          col = "type",
-          palette = "Spectral")+
-  tm_compass(position = c("left","bottom"))+
-  tm_scale_bar(position = c("left","bottom"))+
-  tm_layout(legend.outside = T)
-tm
+<!-- \newpage -->
 
 
-```
+<!-- # Stream Depletion Ratios and location of pumping   -->
+
+<!-- Stream depletion ratio for selected river and time interval   -->
+<!-- pumping locations shown by type and volume   -->
+
+<!-- ```{r echo = F} -->
+
+<!-- osm_map <- read_osm(params$raster,type ="stamen-terrain") -->
+
+<!-- tm <- qtm(osm_map)+ -->
+<!--   tm_shape(params$raster)+ -->
+<!--   tm_raster(col = "SDR", -->
+<!--               breaks = seq(0,1,0.1), -->
+<!--               style = "fixed", -->
+<!--               palette = "-Spectral", -->
+<!--               alpha = 0.5, -->
+<!--               title = "stream depletion ratio")+ -->
+<!--   tm_shape(params$wells)+ -->
+<!--   tm_dots(size = "Q", -->
+<!--           col = "type", -->
+<!--           palette = "Spectral")+ -->
+<!--   tm_compass(position = c("left","bottom"))+ -->
+<!--   tm_scale_bar(position = c("left","bottom"))+ -->
+<!--   tm_layout(legend.outside = T) -->
+<!-- tm -->
+
+
+<!-- ``` -->
 
 \newpage
 
-# RESULTS per pumping bore  
 
-```{r echo = F}
-if(params$include_wells == T){ kable(params$SD_per_bore)}else{"user selected not to include wells"}
-```
-
-\newpage
 
 # Chart of stream depletion vs time  
 
-depletion by selected puming  
+Depletion by selected pumping   
 for selected stream  
 
 ```{r echo = FALSE}
 params$chart_line
 ```
 
-data for depletion vs time  
+Data for depletion vs time  
 
 ```{r echo = FALSE}
 kable(params$SD_per_times)
@@ -119,16 +115,35 @@ kable(params$SD_per_times)
 
 # Chart of stream depletion per zone  
 
-depletion by selected puming  
+Depletion by selected puming  
 for selected time interval  
 
 ```{r echo = FALSE}
 params$chart_bar
 ```
-data for depletion vs zone  
+Data for depletion vs zone  
 
 ```{r echo = FALSE}
 kable(params$SD_per_river)
 ``` 
+
+\newpage
+
+
+# Results per pumping bore for selected stream
+
+```{r echo = F}
+if(params$include_wells == T){ kable(params$SD_per_bore)}else{"user selected not to include wells"}
+```
+
+
+\newpage
+
+
+# Results per pumping bore for all streams  
+
+```{r echo = F}
+if(params$include_effect_streams == T){ kable(params$SD_per_streams)}else{"user selected not to effects for different streams"}
+```
 
 
